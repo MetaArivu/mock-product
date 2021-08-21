@@ -15,11 +15,7 @@
  */
 package io.fusion.air.microservice.adapters.controllers;
 
-import io.fusion.air.microservice.ServiceBootStrap;
-import io.fusion.air.microservice.domain.models.PaymentDetails;
-import io.fusion.air.microservice.domain.models.PaymentStatus;
-import io.fusion.air.microservice.domain.models.PaymentType;
-
+import io.fusion.air.microservice.domain.models.Product;
 import io.fusion.air.microservice.server.config.ServiceConfiguration;
 import io.fusion.air.microservice.server.controller.AbstractController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,8 +31,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -50,7 +47,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 @Configuration
 @RestController
-// "/api/v1/payment"
+// "/api/v1/product"
 @RequestMapping("${service.api.path}")
 @RequestScope
 @Tag(name = "Product", description = "Product Service ")
@@ -63,86 +60,118 @@ public class AppControllerImpl extends AbstractController {
 	private ServiceConfiguration serviceConfig;
 
 	/**
-	 * Get Method Call to Check the Health of the App
+	 * Get Product By Category
 	 * 
 	 * @return
 	 */
-    @Operation(summary = "Check the Product status")
+    @Operation(summary = "Get the Product based on Category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-            description = "Product Status Check",
+            description = "Get the product based on Category",
             content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "404",
-            description = "Invalid Product Reference No.",
+            description = "Invalid Product category name",
             content = @Content)
     })
-	@GetMapping("/status/{referenceNo}")
+	@GetMapping("/category/{category}")
 	@ResponseBody
-	public ResponseEntity<String> getStatus(@PathVariable("referenceNo") String _referenceNo,
-			HttpServletRequest request) throws Exception {
-		log.info("|"+name()+"|Request to Product Status of Service... ");
-		return ResponseEntity.ok("200:Service-Health-OK");
+	public ResponseEntity<ArrayList<Product>> getByCategory(@PathVariable("category") String _category,
+														HttpServletRequest request) throws Exception {
+		log.info("|"+name()+"|Get Product by Category .. ");
+		ArrayList<Product> plist = new ArrayList<Product>();
+		plist.add(new Product());
+		return ResponseEntity.ok(plist);
 	}
 
 	/**
-	 * Process the Product
+	 * Get Product By Category & Brand
+	 *
+	 * @return
 	 */
-    @Operation(summary = "Process Product")
+	@Operation(summary = "Get the Product based on Category & Brand")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					description = "Get the product based on Category & Brand",
+					content = {@Content(mediaType = "application/json")}),
+			@ApiResponse(responseCode = "404",
+					description = "Invalid Product category name or brand name",
+					content = @Content)
+	})
+	@GetMapping("/category/{category}/brand/{brand}")
+	@ResponseBody
+	public ResponseEntity<ArrayList<Product>> getByCategoryAndBrand(@PathVariable("category") String _category,
+															@PathVariable("brand") String _brand,
+															HttpServletRequest request) throws Exception {
+		log.info("|"+name()+"|Get Product by Category & Brand .. ");
+		ArrayList<Product> plist = new ArrayList<Product>();
+		plist.add(new Product());
+		return ResponseEntity.ok(plist);
+	}
+
+	/**
+	 * Add the Product
+	 */
+    @Operation(summary = "Add Product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-            description = "Process the payment",
+            description = "Add the Product",
             content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "404",
-            description = "Unable to process the payment",
+            description = "Unable to add the Product",
             content = @Content)
     })
-    @PostMapping("/processProduct")
-    public ResponseEntity<PaymentStatus> processPayments(@RequestBody PaymentDetails _payDetails) {
-		log.info("|"+name()+"|Request to process payments... ");
-		PaymentStatus ps = new PaymentStatus(
-				"fb908151-d249-4d30-a6a1-4705729394f4",
-				LocalDateTime.now(),
-				"Accepted",
-				UUID.randomUUID().toString(),
-				LocalDateTime.now(),
-				PaymentType.CREDIT_CARD);
-		return ResponseEntity.ok(ps);
+    @PostMapping("/add")
+    public ResponseEntity<Map<String,Object>> addProduct(@RequestBody  Product _product) {
+		log.info("|"+name()+"|Add Product ... ");
+		HashMap<String,Object> status = new HashMap<String,Object>();
+		status.put("Code", 200);
+		status.put("Status", true);
+		status.put("Message","Product added!");
+		return ResponseEntity.ok(status);
     }
 
 	/**
-	 * Cancel the Product
+	 * Delete the Product
 	 */
-	@Operation(summary = "Cancel Product")
+	@Operation(summary = "Delete Product")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",
-					description = "Cancel the payment",
+					description = "Delete the Product",
 					content = {@Content(mediaType = "application/json")}),
 			@ApiResponse(responseCode = "404",
-					description = "Unable to Cancel the payment",
+					description = "Unable to Delete the Product",
 					content = @Content)
 	})
-	@DeleteMapping("/cancel/{referenceNo}")
-	public ResponseEntity<String> cancel(@PathVariable("referenceNo") String _referenceNo) {
-		log.info("|"+name()+"|Request to process payments... ");
-		return ResponseEntity.ok("200:Cancellation-OK");
+	@DeleteMapping("/delete/{productId}")
+	public ResponseEntity<Map<String,Object>> cancel(@PathVariable("productId") String _productId) {
+		log.info("|"+name()+"|Delete the Product ... "+_productId);
+		HashMap<String,Object> status = new HashMap<String,Object>();
+		status.put("Code", 200);
+		status.put("Status", true);
+		status.put("Message","Product Deleted!");
+		return ResponseEntity.ok(status);
 	}
 
 	/**
-	 * Cancel the Product
+	 * Update the Product
 	 */
 	@Operation(summary = "Update Product")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",
-					description = "Update the payment",
+					description = "Update the Product",
 					content = {@Content(mediaType = "application/json")}),
 			@ApiResponse(responseCode = "404",
-					description = "Unable to Update the payment",
+					description = "Unable to Update the Product",
 					content = @Content)
 	})
-	@PutMapping("/update/{referenceNo}")
-	public ResponseEntity<String> updateProduct(@PathVariable("referenceNo") String _referenceNo) {
-		log.info("|"+name()+"|Request to Update payments... ");
-		return ResponseEntity.ok("200:Update-OK");
+	@PutMapping("/update/{productId}")
+	public ResponseEntity<Map<String,Object>> updateProduct(@PathVariable("productId") String _productId) {
+		log.info("|"+name()+"|Request to Update productId... "+_productId);
+		HashMap<String,Object> status = new HashMap<String,Object>();
+		status.put("Code", 200);
+		status.put("Status", true);
+		status.put("Message","Product updated!");
+		return ResponseEntity.ok(status);
 	}
  }
 
